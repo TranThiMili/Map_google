@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="1">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.31"
+        android:background="#02A2DC">
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_back"
+                android:layout_marginTop="14dp"
+                android:layout_marginBottom="14dp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Văn Phòng"
+                android:gravity="center"
+                android:textSize="25sp"
+                android:textColor="#ffff"/>
+        </FrameLayout>
+    </LinearLayout>
+
+    <fragment
+        android:id="@+id/frgmap"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_weight="0.19"
+        android:layout_marginBottom="9dp"
+        android:layout_marginTop="9dp"
+        android:layout_marginRight="9dp"
+        android:layout_marginLeft="9dp"></fragment>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.31"
+        android:background="@color/color_bg_googlemap"
+        android:orientation="horizontal"
+        android:weightSum="1"
+        android:paddingLeft="13dp"
+        android:paddingRight="13dp">
+        <LinearLayout
+            android:id="@+id/lnNorth"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_weight="0.33">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Miền Bắc"
+                android:textColor="#000000"
+                android:textSize="20sp"
+                android:gravity="center"/>
+            <View
+                android:id="@+id/viewNorth"
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_view"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/lnSouth"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_weight="0.33">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Miền Nam"
+                android:textSize="20sp"
+                android:textColor="#000000"
+                android:gravity="center"/>
+            <View
+                android:id="@+id/viewSouth"
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_view"
+                android:visibility="invisible"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/lnMiddle"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_weight="0.33">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Miền Trung"
+                 android:textColor="#000000"
+                android:textSize="20sp"
+                android:gravity="center"/>
+            <View
+                android:id="@+id/viewMiddle"
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_view"
+                android:visibility="invisible"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.18"
+        android:background="@color/color_bg_googlemap">
+        <ListView
+            android:id="@+id/lvmap"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginRight="14dp"
+            android:layout_marginLeft="14dp"
+            android:layout_marginBottom="5dp"
+            android:divider="@null"
+            android:dividerHeight="10dp" >
+        </ListView>
+    </LinearLayout>
+</LinearLayout>

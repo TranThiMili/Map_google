@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Demo_googlePru</string>
+    <string name="api_map_key">AIzaSyAX44qEkNv8eTZ8hZ9cJPqfr1pjttoWgh0</string>
+    <string name="api_direction_key">AIzaSyCSV_fwscaWGn5iaP2JsRv7Sc2w1_ri7ik</string>
+</resources>
