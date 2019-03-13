@@ -3,8 +3,13 @@ package com.example.mili.demo_googlepru;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -53,6 +58,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     View viewMienBac, viewMienNam, viewMienTrung;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private ListView lvMap;
+    private ProgressDialog progressDialog;
+    private static final int REQUEST_LOCATION = 9999;
     private ArrayList<Office> arrayList1 = new ArrayList<>();
     private AdapterOffice adapterOffice;
     private Location myLocation = null;
@@ -91,15 +98,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 try {
                     mMap.clear();
-                    displayMyLocation(myLocation);
+                    //displayMyLocation(myLocation);
                     if (arrayList1.get(position)._mlagn != null && !arrayList1.get(position)._mlong.equals("") &&
                             arrayList1.get(position)._mlagn != null && !arrayList1.get(position)._mlagn.equals("")) {
 
                         LatLng destFrom = new LatLng(Double.parseDouble(arrayList1.get(position)._mlagn), Double.parseDouble(arrayList1.get(position)._mlong));
-                        if (myLocation != null) {
-                            LatLng destTo = new LatLng(Double.parseDouble(myLocation.getLatitude() + ""), Double.parseDouble(myLocation.getLongitude() + ""));
-                            showDiretion(destTo, destFrom, "", arrayList1.get(position)._mName);
-                        }
+//                        if (myLocation != null) {
+//                            LatLng destTo = new LatLng(Double.parseDouble(myLocation.getLatitude() + ""), Double.parseDouble(myLocation.getLongitude() + ""));
+//                            showDiretion(destTo, destFrom, "", arrayList1.get(position)._mName);
+//                        }
                         marker = mMap.addMarker(new MarkerOptions()
                                 .position(destFrom)
                                 .title(arrayList1.get(position)._mName)
@@ -117,6 +124,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void selectedMarker(LatLng location, Marker marker) {
         if (location != null && marker != null) {
+            int height = 35;
+            int width = 35;
+            BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.grab);
+            Bitmap b=bitmapdraw.getBitmap();
+            Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 13));
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(location)
@@ -126,6 +139,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     .build();
             mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             marker.showInfoWindow();
+            marker.setIcon(BitmapDescriptorFactory.fromBitmap(smallMarker));
         }
     }
 
@@ -144,15 +158,148 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void onMyMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+        if (googleMap != null) {
+            mMap = googleMap;// Lấy đối tượng Google Map ra:
+            progressDialog = new ProgressDialog(MainActivity.this);
+            progressDialog.setTitle("Thông Báo");
+            progressDialog.setMessage("Đang tải GoogleMap");
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.show();
 
-        mMap.setOnMyLocationButtonClickListener(onMyLocationButtonClickListener);
-        mMap.setOnMyLocationClickListener(onMyLocationClickListener);
-        enableMyLocationIfPermitted();
+            // Thiết lập sự kiện đã tải Map thành công
+            mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                @Override
+                public void onMapLoaded() {
+                    // Đã tải thành công thì tắt Dialog Progress đi
+                    progressDialog.dismiss();
+                    initPermission();
+                }
+            });
 
-        mMap.getUiSettings().setZoomControlsEnabled(true);
-        mMap.setMinZoomPreference(7);
+            if (!(Build.VERSION.SDK_INT > Build.VERSION_CODES.M)) {
+                progressDialog.dismiss();
+            }
+        }
     }
+
+    //Cấp quyền
+    public void initPermission() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                //--------------Location - Bluetoooth
+                if (this.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                        this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    //Permisson don't granted
+                    if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) &&
+                            shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                        Log.e("MAP", "Permission isn't granted");
+                    }
+                    // Permisson don't granted and dont show dialog again.
+                    else {
+                        Log.e("MAP", "Permisson don't granted and dont show dialog again");
+                    }
+                    requestPermissions(new String[]{
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                    }, REQUEST_LOCATION);
+                } else {
+                    // Hiển thị vị trí hiện thời trên bản đồ khi đã cấp quyền
+                    if (mMap != null) {
+                        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                        //map.getUiSettings().setZoomControlsEnabled(true);
+                        mMap.setMyLocationEnabled(true);
+                    }
+                    showMyLocation();
+                }
+            } else {
+                LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                    Toast.makeText(this, "Vui lòng bật GPS !", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Hiển thị vị trí hiện thời trên bản đồ.
+                    if (mMap != null) {
+                        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                        //map.getUiSettings().setZoomControlsEnabled(true);
+                        mMap.setMyLocationEnabled(true);
+                    }
+                    showMyLocation();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Tìm một nhà cung cấp vị trị hiện thời đang được mở.
+    private String getEnabledLocationProvider() {
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        // Tiêu chí để tìm một nhà cung cấp vị trí.
+        Criteria criteria = new Criteria();
+        // Tìm một nhà cung vị trí hiện thời tốt nhất theo tiêu chí trên.
+        // ==> "gps", "network",...
+        String bestProvider = locationManager.getBestProvider(criteria, true);
+        boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        boolean isPassiveEnabled = locationManager.isProviderEnabled(LocationManager.PASSIVE_PROVIDER);
+        boolean isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        boolean isEnabledBest = locationManager.isProviderEnabled(bestProvider);// 1 trong 3 trường hợp trên
+        if (isGPSEnabled || isNetworkEnabled || isPassiveEnabled || isEnabledBest) {
+            if (isPassiveEnabled) {
+                return LocationManager.PASSIVE_PROVIDER; //Hiện tại only run case this
+            }
+        } else {
+            Log.e("MAP", "No location provider enabled!");
+            return null;
+        }
+        return bestProvider; //LocationManager.PASSIVE_PROVIDER - LocationManager.GPS_PROVIDER
+    }
+
+
+    //Hiển thị vị trí hiện thời trên bản đồ. - Chỉ gọi phương thức này khi đã có quyền xem vị trí người dùng.
+    public void showMyLocation() {
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        /*boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        boolean isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);*/
+
+        String locationProvider = this.getEnabledLocationProvider();
+        if (locationProvider == null) {
+            return;
+        }
+        // Millisecond
+        final long MIN_TIME_BW_UPDATES = 1000;
+        // Met
+        final float MIN_DISTANCE_CHANGE_FOR_UPDATES = 1;
+
+        try {
+            // Đoạn code nay cần người dùng cho phép (Hỏi ở trên ***).
+            locationManager.requestLocationUpdates(
+                    locationProvider,
+                    MIN_TIME_BW_UPDATES,
+                    MIN_DISTANCE_CHANGE_FOR_UPDATES, (LocationListener) MainActivity.this);
+
+            // Lấy ra vị trí.
+            myLocation = locationManager.getLastKnownLocation(locationProvider);
+//
+//            if (myLocation == null && mLocationResolver != null) { //API 22 --> lower
+//                mLocationResolver.resolveLocation(getActivity(), new LocationResolver.OnLocationResolved() {
+//                    @Override
+//                    public void onLocationResolved(Location location) {
+//                        myLocation = location;
+//                        displayMyLocation(location);
+//                    }
+//                });
+//            } else {
+                displayMyLocation(myLocation);
+            //}
+
+        } catch (SecurityException e) { // Với Android API >= 23 phải catch SecurityException.
+            Toast.makeText(this, "Show My Location Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Log.e("MAP", "Show My Location Error:" + e.getMessage());
+            e.printStackTrace();
+            return;
+        }
+    }
+
+
 
     private void enableMyLocationIfPermitted() {
         if (ContextCompat.checkSelfPermission(this,
@@ -171,7 +318,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         try {
             if (myLocation != null) {
                 LatLng latLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
-                //map.clear();
+                //mMap.clear();
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
                 CameraPosition cameraPosition = new CameraPosition.Builder()
                         .target(latLng)             // Sets the center of the map to location user
@@ -180,13 +327,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .tilt(40)                   // Sets the tilt of the camera to 30 degrees
                         .build();                   // Creates a CameraPosition from the builder
                 mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-                createMarker(myLocation.getLatitude(), myLocation.getLongitude(),"hehe");
-
+                createMarker(myLocation.getLatitude(), myLocation.getLongitude(),"this is me");
                 // Thêm Marker cho Map:
                 MarkerOptions option = new MarkerOptions();
-                //option.title("Vị trí hiện tại");
+                option.title("Vị trí hiện tại");
                 //option.snippet("....");
-                //option.icon(BitmapDescriptorFactory.fromResource(R.drawable.location_red));
+                option.icon(BitmapDescriptorFactory.fromResource(R.drawable.grab));
                 option.position(latLng);
                 Marker currentMarker = mMap.addMarker(option);
                 currentMarker.showInfoWindow();
@@ -487,12 +633,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     protected Marker createMarker(double latitude, double longitude, String title) {
+        int height = 35;
+        int width = 35;
+        BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.grab);
+        Bitmap b=bitmapdraw.getBitmap();
+        Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
 
         return mMap.addMarker(new MarkerOptions()
                 .position(new LatLng(latitude, longitude))
                 .anchor(0.5f, 0.5f)
                 .title(title)
-        );
+                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker)));
     }
 
 

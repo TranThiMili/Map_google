@@ -4,4 +4,7 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="color_bg_googlemap">#f2ebef</color>
+    <color name="colorLogin">#7063a3e9</color>
+    <color name="color_btnLogin">#1984BC</color>
+    <color name="nice_blue">#1984bc</color>
 </resources>

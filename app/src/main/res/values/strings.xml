@@ -2,4 +2,15 @@
     <string name="app_name">Demo_googlePru</string>
     <string name="api_map_key">AIzaSyAX44qEkNv8eTZ8hZ9cJPqfr1pjttoWgh0</string>
     <string name="api_direction_key">AIzaSyCSV_fwscaWGn5iaP2JsRv7Sc2w1_ri7ik</string>
+    <string name="txtOffice">Văn phòng</string>
+    <string name="txtContact">Liên hệ</string>
+    <string name="txtFaq">Faq</string>
+    <string name="txtUserName">Tên đăng nhập</string>
+    <string name="txtPass">Mật khẩu</string>
+    <string name="txtNotLogin">Tôi không thể đăng nhập</string>
+    <string name="txtLogin">ĐĂNG NHẬP</string>
+    <string name="txtYetLogin">Tôi chưa có tên đăng nhập</string>
+    <string name="txtfinance">Công ty tài chính Shinhan Việt Name </string>
+    <string name="txtVersion">Phiên bản 1.0</string>
+    <string name="txtTerm">Điều khoản sử dụng</string>
 </resources>

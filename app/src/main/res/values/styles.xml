@@ -11,4 +11,21 @@
         <item name="android:windowFullscreen">true</item>
     </style>
 
+    <style name="EditText" parent="Theme.AppCompat">
+        <item name="android:textColor">#ffff</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="TextLabel" parent="Theme.AppCompat">
+        <item name="android:textColorHint">#1984BC</item>
+        <item name="android:textSize">20sp</item>
+        <!-- Label color in TRUE state and bar color FALSE and TRUE State -->
+        <item name="colorAccent">#1984BC</item>
+        <item name="colorControlNormal">#ffff</item>
+        <item name="colorControlActivated">#1984BC</item>
+    </style>
+
+
+
 </resources>
